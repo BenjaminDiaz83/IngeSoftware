@@ -11,8 +11,8 @@ class PlatoAdmin(admin.ModelAdmin):
     filter_horizontal = ('ingredientes',) 
 
     def vista_plato(self, obj):
-        if obj.imagen_plato:
-            return f'<img src="{obj.imagen_plato.url}" width="100" height="100" />'
+        if obj.imagen:
+            return format_html ('<img src="{}" width="100" height="100" />',obj.imagen.url)
         return "No Image"
 
 admin.site.register(Categoria)

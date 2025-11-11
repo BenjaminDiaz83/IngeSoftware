@@ -21,7 +21,7 @@ class Plato(models.Model):
     nombre = models.CharField(max_length=150, unique=True)
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=6, decimal_places=2)
-    imagen_plato = models.ImageField(upload_to='platos/', null=True, blank=True)
+    imagen = models.ImageField(upload_to='platos/', null=True, blank=True)
     
     # Relaciones
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True)
