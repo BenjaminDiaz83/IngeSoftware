@@ -1,5 +1,5 @@
 from django import forms
-from .models import Plato
+from .models import Plato, Ingrediente
 
 class PlatoForm(forms.ModelForm):
     """
@@ -23,4 +23,29 @@ class PlatoForm(forms.ModelForm):
             
             # El campo 'categoria' debe usar 'form-select'
             'categoria': forms.Select(attrs={'class': 'form-select'}),
+        }
+class IngredienteStockForm(forms.ModelForm):
+    class Meta:
+        model = Ingrediente
+        fields = ['stock']
+        widgets = {
+            'stock': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0'
+            })
+        }
+
+class IngredienteForm(forms.ModelForm):
+    class Meta:
+        model = Ingrediente
+        fields = ['nombre', 'stock']
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Tomate'
+            }),
+            'stock': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0'
+            })
         }

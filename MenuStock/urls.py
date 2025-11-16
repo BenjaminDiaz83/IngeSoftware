@@ -12,8 +12,9 @@ urlpatterns = [
     path('editar/<int:pk>/', views.editar_plato, name='editar_plato'), 
     path('eliminar/<int:pk>/', views.eliminar_plato, name='eliminar_plato'),
     path('', views.administrador, name='administrador'), 
+    path('stock-ingredientes/', views.stock_ingredientes, name='stock_ingredientes'),
+    path('ingredientes/crear/', views.crear_ingrediente, name='crear_ingrediente'),
 ]
-
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
