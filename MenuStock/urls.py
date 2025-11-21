@@ -14,6 +14,9 @@ urlpatterns = [
     path('', views.administrador, name='administrador'), 
     path('stock-ingredientes/', views.stock_ingredientes, name='stock_ingredientes'),
     path('ingredientes/crear/', views.crear_ingrediente, name='crear_ingrediente'),
+    path('plato/<int:plato_id>/deshabilitar/', views.deshabilitar_plato, name='deshabilitar_plato'),
+    path('plato/<int:plato_id>/habilitar/', views.habilitar_plato, name='habilitar_plato'),
+
 ]
 
 if settings.DEBUG:

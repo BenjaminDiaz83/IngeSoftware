@@ -24,6 +24,24 @@ class PlatoForm(forms.ModelForm):
             # El campo 'categoria' debe usar 'form-select'
             'categoria': forms.Select(attrs={'class': 'form-select'}),
         }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Obtener todos los ingredientes
+        ingredientes_qs = Ingrediente.objects.all()
+        
+        # Crear la lista de opciones (value, label) que incluye el stock en HTML
+        choices = []
+        for ingrediente in ingredientes_qs:
+            # Creamos un label con HTML (badge de Bootstrap) para mostrar el stock
+            label = f"{ingrediente.nombre} - {ingrediente.stock} restantes"
+            choices.append((ingrediente.pk, label))
+            
+        # Asignar las nuevas opciones al campo
+        self.fields['ingredientes'].choices = choices
+        
+        
 class IngredienteStockForm(forms.ModelForm):
     class Meta:
         model = Ingrediente

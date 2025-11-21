@@ -2,10 +2,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Plato
 from .forms import PlatoForm
+from django.http import JsonResponse
 from django.forms import modelformset_factory
 from django.contrib import messages
 from .models import Plato, Ingrediente
 from .forms import PlatoForm, IngredienteStockForm, IngredienteForm
+from django.views.decorators.http import require_http_methods
 
 def listar_platos(request): 
     """Vista que recupera todos los platos y los muestra."""
@@ -124,3 +126,31 @@ def crear_ingrediente(request):
         'form': form,
     }
     return render(request, 'menu/formulario_ingrediente.html', context)
+
+
+@require_http_methods(["POST"])
+def deshabilitar_plato(request, plato_id):
+    """Deshabilita un plato (plato.activo = False) y retorna éxito en JSON."""
+    try:
+        plato = Plato.objects.get(id=plato_id)
+        plato.activo = False
+        plato.save()
+        return JsonResponse({'success': True, 'message': f'Plato {plato_id} deshabilitado con éxito.'})
+    except Plato.DoesNotExist:
+        return JsonResponse({'success': False, 'message': f'Plato ID {plato_id} no encontrado.'}, status=404)
+    except Exception as e:
+        # Manejo de otros errores (ej. error de base de datos)
+        return JsonResponse({'success': False, 'message': f'Error interno: {str(e)}'}, status=500)
+
+@require_http_methods(["POST"])
+def habilitar_plato(request, plato_id):
+    """Habilita un plato (plato.activo = True) y retorna éxito en JSON."""
+    try:
+        plato = Plato.objects.get(id=plato_id)
+        plato.activo = True
+        plato.save()
+        return JsonResponse({'success': True, 'message': f'Plato {plato_id} habilitado con éxito.'})
+    except Plato.DoesNotExist:
+        return JsonResponse({'success': False, 'message': f'Plato ID {plato_id} no encontrado.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Error interno: {str(e)}'}, status=500)

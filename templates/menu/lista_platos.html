@@ -5,8 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ titulo }}</title>
     
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+
+    <style>
+        .plato-card {
+            transition: all 0.5s ease-in-out;
+            order: 1; 
+        }
+        .plato-card.plato-deshabilitado {
+            opacity: 0.5; 
+            filter: grayscale(20%);
+            order: 2;
+            border: 1px solid #ffffff !important; 
+            box-shadow: none !important;
+        }
+        .plato-card.plato-deshabilitado .btn-toggle-status {
+            background-color: #198754;
+            border-color: #198754;
+        }
+        
+    </style>
 </head>
 <body>
     
@@ -23,11 +44,10 @@
     
     <div class="container mt-5">
         <p class="lead text-muted text-center mb-4">Lista de Platos para Meseros y Gestión por parte del Chef.</p>
-
         <div class="row justify-content-center"> 
         
         {% for plato in platos %}
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6 mb-4 plato-card {% if not plato.activo %}plato-deshabilitado{% endif %}" id="plato-{{ plato.id }}">
                 <div class="card shadow-lg h-100 border-primary">
                     
                     <div class="card-header bg-primary text-white">
@@ -61,6 +81,14 @@
                         
                         <div class="mt-4 pt-3 border-top">
                             <p class="fw-bold small text-primary mb-2">Acciones de Gestión:</p>
+                            <button 
+                                class="btn btn-sm me-2 btn-toggle-status 
+                                {% if plato.activo %}btn-danger{% else %}btn-success{% endif %}" 
+                                data-plato-id="{{ plato.id }}"
+                            >
+                                <i class="bi bi-power"></i> 
+                                {% if plato.activo %}Deshabilitar{% else %}Habilitar{% endif %}
+                            </button>                        
                             <a href="{% url 'editar_plato' plato.pk %}" class="btn btn-warning btn-sm me-2"><i class="bi bi-pencil-square"></i> Editar Receta</a> 
                             <a href="{% url 'eliminar_plato' plato.pk %}" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i> Eliminar Plato</a>
                         </div>
@@ -78,7 +106,71 @@
         </div>
         
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1Yf+6zQo/w/Wc" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1Yf+6zQo/w/Wc" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            document.querySelectorAll('.btn-toggle-status').forEach(button => {
+                button.addEventListener('click', function() {
+                    const platoId = this.getAttribute('data-plato-id');
+                    const platoElement = document.getElementById(`plato-${platoId}`);
+                    const estaDeshabilitado = platoElement.classList.contains('plato-deshabilitado');
+                    const endpoint = estaDeshabilitado 
+                        ? `/plato/${platoId}/habilitar/`  
+                        : `/plato/${platoId}/deshabilitar/`; 
+                    this.disabled = true;
+
+                    fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken') 
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error en el servidor: ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) { 
+                            platoElement.classList.toggle('plato-deshabilitado');
+                            if (platoElement.classList.contains('plato-deshabilitado')) {
+                                this.innerHTML = '<i class="bi bi-power"></i> Habilitar';
+                                this.classList.remove('btn-danger');
+                                this.classList.add('btn-success');
+                            } else {
+                                this.innerHTML = '<i class="bi bi-power"></i> Deshabilitar';
+                                this.classList.remove('btn-success');
+                                this.classList.add('btn-danger');
+                            }
+                        } else {
+                            console.error('Error lógico:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Hubo un error en la comunicación:', error);
+                    })
+                    .finally(() => {
+                        this.disabled = false;
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
