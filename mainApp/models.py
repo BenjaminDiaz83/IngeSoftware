@@ -33,3 +33,9 @@ class Plato(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+    def tiene_stock_suficiente(self):
+        ingredientes = self.ingredientes.all()
+        if not ingredientes:
+            return True
+        return all(ing.stock > 0 for ing in ingredientes)
