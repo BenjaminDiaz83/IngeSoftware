@@ -24,14 +24,16 @@ MEDIA_DIR = os.path.join(BASE_DIR,'media')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", "False").lower() == "True"
+DEBUG = os.environ.get("DEBUG", "false").lower() == "true"
 
-ALLOWED_HOSTS = [os.environ.get("ALLOWED_HOSTS", "localhost")]
-CSRF_TRUSTED_ORIGINS = [os.environ.get("CSRF_TRUSTED_ORIGINS", "http://localhost:8000")]
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "CSRF_TRUSTED_ORIGINS",
+    "http://localhost:8000,http://127.0.0.1:8000"
+).split(",")
 
 
 # Application definition
