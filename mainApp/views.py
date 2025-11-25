@@ -8,6 +8,22 @@ from django.contrib import messages
 from .models import Plato, Ingrediente
 from .forms import PlatoForm, IngredienteStockForm, IngredienteForm
 from django.views.decorators.http import require_http_methods
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
+from .serializers import PlatoSerializer, IngredienteSerializer
+
+# --- Vistas API RESTful ---
+class PlatoViewSet(viewsets.ModelViewSet):
+    """API endpoint que permite ver o editar platos."""
+    queryset = Plato.objects.all().select_related('categoria').prefetch_related('ingredientes')
+    serializer_class = PlatoSerializer
+    permission_classes = [AllowAny]
+    
+class IngredienteViewSet(viewsets.ModelViewSet):
+    """API endpoint que permite ver o editar ingredientes."""
+    queryset = Ingrediente.objects.all()
+    serializer_class = IngredienteSerializer
+    permission_classes = [AllowAny]
 
 def listar_platos(request): 
     """Vista que recupera todos los platos y los muestra."""
